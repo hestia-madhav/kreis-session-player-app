@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CMCA Sessions</title>
+  <link rel="stylesheet" href="css/fonts.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0; min-height: 100vh;
+      background: radial-gradient(1200px 600px at 50% -10%, rgba(243,156,31,0.12), transparent 60%), #FFFBF2;
+      font-family: "Inter", "Noto Sans Kannada", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #1F2937; -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 920px; margin: 0 auto; padding: 1.5rem 1.25rem 5rem; }
+
+    /* Header */
+    .header { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .header-left { display: flex; align-items: center; gap: 0.75rem; }
+    .header-left img { height: 40px; width: auto; }
+    .header-left .sep { border-left: 1px solid #E5E7EB; height: 28px; }
+    .header-right { display: flex; align-items: center; gap: 0.5rem; }
+    .user-badge { font-size: 0.78rem; color: #6B7280; background: #F3F4F6; padding: 0.25rem 0.65rem; border-radius: 999px; }
+    .btn-sm {
+      padding: 0.3rem 0.65rem; border-radius: 8px; border: 1px solid #D1D5DB;
+      background: #fff; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+      font-family: inherit; color: #374151; transition: background 0.15s;
+    }
+    .btn-sm:hover { background: #F9FAFB; }
+    .btn-refresh { border-color: #F39C1F; color: #F39C1F; }
+    .btn-logout { border-color: #EF4444; color: #EF4444; }
+
+    /* Tabs */
+    .tab-bar {
+      display: flex; gap: 0; margin-bottom: 1.25rem;
+      border-bottom: 2px solid #E5E7EB;
+    }
+    .tab {
+      padding: 0.65rem 1.25rem; font-size: 0.92rem; font-weight: 700; cursor: pointer;
+      color: #9CA3AF; border-bottom: 3px solid transparent; margin-bottom: -2px;
+      transition: color 0.15s, border-color 0.15s; background: none; border-top: none;
+      border-left: none; border-right: none; font-family: inherit;
+    }
+    .tab:hover { color: #6B7280; }
+    .tab.active { color: #F39C1F; border-bottom-color: #F39C1F; }
+    .tab-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 700; margin-left: 0.4rem;
+      background: #F3F4F6; color: #6B7280;
+    }
+    .tab.active .tab-count { background: rgba(243,156,31,0.15); color: #F39C1F; }
+
+    /* Status bar */
+    .status-bar { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .badge { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; }
+    .badge-online { background: #D1FAE5; color: #065F46; }
+    .badge-offline { background: #FEF3C7; color: #92400E; }
+    .storage-text { font-size: 0.75rem; color: #9CA3AF; }
+
+    /* Programme sections */
+    .programme { margin-bottom: 1.75rem; }
+    .programme-header { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.6rem; }
+    .programme-name { font-size: 1.2rem; font-weight: 700; color: #1E293B; }
+    .programme-pill { padding: 0.12rem 0.55rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
+    .pill-kreis { background: rgba(243,156,31,0.12); color: #F39C1F; }
+    .pill-dom { background: rgba(14,165,233,0.12); color: #0EA5E9; }
+
+    /* Cards */
+    .cards { display: grid; gap: 0.65rem; }
+    .card {
+      background: #fff; border: 1px solid #E5E7EB; border-radius: 14px;
+      padding: 1rem 1.25rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; margin-bottom: 0.2rem; }
+    .card-num { font-size: 0.7rem; letter-spacing: 0.12em; color: #F39C1F; font-weight: 700; text-transform: uppercase; }
+    .card-dur { font-size: 0.8rem; color: #6B7280; }
+    .card h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.15rem; color: #1E293B; }
+    .card p { margin: 0 0 0.5rem; color: #4B5563; font-size: 0.85rem; line-height: 1.4; }
+    .card-dom .card-num { color: #0EA5E9; }
+
+    /* Buttons */
+    .card-actions { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .btn-play {
+      padding: 0.4rem 0.9rem; border-radius: 10px; border: none;
+      background: #F39C1F; color: #fff; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; font-family: inherit; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.3rem;
+    }
+    .btn-play:hover { background: #D48A1A; }
+    .btn-play.dom { background: #0EA5E9; }
+    .btn-play.dom:hover { background: #0284C7; }
+    .btn-download {
+      padding: 0.4rem 0.9rem; border-radius: 10px; border: 2px solid #F39C1F;
+      background: transparent; color: #F39C1F; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn-download.dom { border-color: #0EA5E9; color: #0EA5E9; }
+    .btn-download:disabled { border-color: #D1D5DB; color: #9CA3AF; cursor: not-allowed; }
+    .btn-delete {
+      padding: 0.35rem 0.55rem; border-radius: 8px; border: 1px solid #FCA5A5;
+      background: transparent; color: #EF4444; font-size: 0.72rem; cursor: pointer; font-family: inherit;
+    }
+    .btn-update {
+      padding: 0.35rem 0.7rem; border-radius: 8px; border: 2px solid #1D4ED8;
+      background: transparent; color: #1D4ED8; font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+    }
+    .update-badge { font-size: 0.7rem; background: #DBEAFE; color: #1D4ED8; padding: 0.12rem 0.45rem; border-radius: 999px; font-weight: 600; }
+    .downloaded-badge { font-size: 0.7rem; background: #D1FAE5; color: #065F46; padding: 0.12rem 0.45rem; border-radius: 999px; font-weight: 600; }
+    .size-label { font-size: 0.75rem; color: #9CA3AF; }
+
+    /* Progress */
+    .progress-bar { width: 120px; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #F39C1F; border-radius: 3px; transition: width 0.3s; }
+    .progress-text { font-size: 0.72rem; color: #6B7280; }
+
+    /* Empty states */
+    .empty-state {
+      text-align: center; padding: 3rem 1rem; color: #9CA3AF;
+    }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 700; color: #6B7280; margin: 0 0 0.5rem; }
+    .empty-state p { font-size: 0.9rem; margin: 0 0 1rem; }
+    .empty-state .btn-browse {
+      padding: 0.55rem 1.25rem; border-radius: 10px; border: none;
+      background: #F39C1F; color: #fff; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    footer { margin-top: 1.5rem; padding-top: 0.75rem; border-top: 1px solid #E5E7EB; font-size: 0.75rem; color: #9CA3AF; text-align: center; }
+
+    /* App update banner */
+    .update-banner {
+      display: none; background: linear-gradient(135deg, #1D4ED8, #2563EB); color: #fff;
+      padding: 0.75rem 1.25rem; border-radius: 12px; margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(29,78,216,0.25);
+    }
+    .update-banner.visible { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+    .update-banner-text { font-size: 0.85rem; font-weight: 600; }
+    .update-banner-text small { display: block; font-weight: 400; opacity: 0.85; font-size: 0.75rem; margin-top: 0.15rem; }
+    .btn-app-update {
+      padding: 0.4rem 1rem; border-radius: 8px; border: 2px solid #fff;
+      background: transparent; color: #fff; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; font-family: inherit; white-space: nowrap;
+    }
+    .btn-app-update:hover { background: rgba(255,255,255,0.15); }
+    .btn-app-update:disabled { opacity: 0.6; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <img src="sessions/assets/kreis_logo.png" alt="KREIS" onerror="this.style.display='none'" />
+        <div class="sep"></div>
+        <img src="sessions/assets/cmca_logo.png" alt="CMCA" onerror="this.style.display='none'" />
+      </div>
+      <div class="header-right" id="headerRight"></div>
+    </header>
+
+    <!-- App update banner -->
+    <div class="update-banner" id="appUpdateBanner">
+      <div class="update-banner-text">
+        <span id="updateMsg">App update available</span>
+        <small id="updateDetail"></small>
+      </div>
+      <button class="btn-app-update" id="btnAppUpdate" onclick="installAppUpdate()">Update App</button>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab active" data-tab="my" onclick="switchTab('my')">
+        My Sessions<span class="tab-count" id="myCount">0</span>
+      </button>
+      <button class="tab" data-tab="browse" onclick="switchTab('browse')">
+        Browse<span class="tab-count" id="browseCount">0</span>
+      </button>
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar" id="statusBar"></div>
+
+    <!-- MY SESSIONS tab -->
+    <div class="tab-panel active" id="panel-my">
+      <div id="my-kreis-section" class="programme" style="display:none">
+        <div class="programme-header">
+          <span class="programme-name">KREIS</span>
+          <span class="programme-pill pill-kreis">Children's Constitution Club</span>
+        </div>
+        <div class="cards" id="my-kreis-cards"></div>
+      </div>
+      <div id="my-dom-section" class="programme" style="display:none">
+        <div class="programme-header">
+          <span class="programme-name">DOM</span>
+          <span class="programme-pill pill-dom">Children's Civic Club</span>
+        </div>
+        <div class="cards" id="my-dom-cards"></div>
+      </div>
+      <div id="my-empty" class="empty-state">
+        <h3>No sessions downloaded yet</h3>
+        <p>Go to Browse to find and download sessions for offline playback.</p>
+        <button class="btn-browse" onclick="switchTab('browse')">Browse Sessions</button>
+      </div>
+    </div>
+
+    <!-- BROWSE tab -->
+    <div class="tab-panel" id="panel-browse">
+      <div id="browse-kreis-section" class="programme" style="display:none">
+        <div class="programme-header">
+          <span class="programme-name">KREIS</span>
+          <span class="programme-pill pill-kreis">Children's Constitution Club</span>
+        </div>
+        <div class="cards" id="browse-kreis-cards"></div>
+      </div>
+      <div id="browse-dom-section" class="programme" style="display:none">
+        <div class="programme-header">
+          <span class="programme-name">DOM</span>
+          <span class="programme-pill pill-dom">Children's Civic Club</span>
+        </div>
+        <div class="cards" id="browse-dom-cards"></div>
+      </div>
+      <div id="browse-offline" class="empty-state" style="display:none">
+        <h3>You're offline</h3>
+        <p>Connect to WiFi to browse and download available sessions.</p>
+      </div>
+      <div id="browse-empty" class="empty-state" style="display:none">
+        <h3>No sessions available</h3>
+        <p>Check back later or contact your administrator.</p>
+      </div>
+    </div>
+
+    <footer>CMCA Sessions · CMCA India</footer>
+  </div>
+
+  <script>
+    var FALLBACK_SESSIONS = [
+      { id: "kreis-session-1", num: 1, programme: "kreis", title: "Welcome to the Children's Constitution Club", subtitle: "Introductions · Calmers · Group formation · Constitution connect · Club rules", durationMin: 60, downloaded: true },
+      { id: "kreis-session-2", num: 2, programme: "kreis", title: "Naming of Club & Launch Campaign", subtitle: "Pick a club name · Form the core committee · Elect a president · Plan the school-assembly launch", durationMin: 60, downloaded: true },
+      { id: "kreis-session-3", num: 3, programme: "kreis", title: "Choices, Integrity & the Change Champion Box", subtitle: "Hospital stories · Group values exercise · Reflect on choices · Introduce integrity · Build the Change Champion Box", durationMin: 60, downloaded: true },
+      { id: "kreis-session-4", num: 4, programme: "kreis", title: "Child Rights, Responsibilities & Makkala Grama Sabha", subtitle: "Change Champion Box · Ajay's story · Child rights · ChildLine 1098 · Reflection · MGS introduction", durationMin: 60, downloaded: true },
+      { id: "kreis-session-5", num: 5, programme: "kreis", title: "Active Citizens & Helpline Numbers", subtitle: "ROC stories · 3-tier government · Visualization exercise · Local government · Helpline quiz", durationMin: 60, downloaded: true },
+      { id: "kreis-session-6", num: 6, programme: "kreis", title: "Fake News, Scientific Temper & the 4Ws Test", subtitle: "Roleplay · Scientific temper · 4Ws framework · UPI ban fact-check · AI fake news", durationMin: 60, downloaded: true },
+      { id: "dom-session-1", num: 1, programme: "dom", title: "Welcome to the Children's Civic Club", subtitle: "Introductions · Calmers · Group formation · Civic connect · Club rules", durationMin: 60, downloaded: true },
+      { id: "dom-session-2", num: 2, programme: "dom", title: "Naming of Club & Launch Campaign", subtitle: "Pick a club name · Form the core committee · Elect a president · Plan the school-assembly launch", durationMin: 60, downloaded: true },
+      { id: "dom-session-3", num: 3, programme: "dom", title: "Choices, Integrity & the Change Champion Box", subtitle: "Hospital stories · Group values exercise · Reflect on choices · Introduce integrity · Build the Change Champion Box", durationMin: 60, downloaded: true }
+    ];
+
+    var isAPK = !!window.Android;
+    var sessions = [];
+    var activeTab = "my";
+    var pollTimers = {};
+
+    function init() {
+      renderHeader();
+      loadSessions();
+      checkAppUpdate();
+    }
+
+    function renderHeader() {
+      var el = document.getElementById("headerRight");
+      if (isAPK) {
+        var user = Android.getLoggedInUser();
+        el.innerHTML =
+          '<span class="user-badge">' + esc(user) + '</span>' +
+          '<button class="btn-sm btn-refresh" onclick="refreshSessions()">Refresh</button>' +
+          '<button class="btn-sm btn-logout" onclick="doLogout()">Logout</button>';
+      }
+    }
+
+    function loadSessions() {
+      if (isAPK) {
+        try {
+          var data = JSON.parse(Android.getSessionManifest());
+          sessions = data.sessions || [];
+          renderStatusBar(data.remoteAvailable);
+        } catch (e) {
+          sessions = FALLBACK_SESSIONS;
+          renderStatusBar(false);
+        }
+      } else {
+        sessions = FALLBACK_SESSIONS;
+        renderStatusBar(false);
+      }
+      renderAll();
+    }
+
+    function renderStatusBar(remoteAvailable) {
+      var bar = document.getElementById("statusBar");
+      var online = isAPK ? Android.isOnline() : false;
+      var html = '<span class="badge ' + (online ? "badge-online" : "badge-offline") + '">' +
+        (online ? "Online" : "Offline") + '</span>';
+      if (isAPK) {
+        try {
+          var info = JSON.parse(Android.getStorageInfo());
+          var usedMB = Math.round(info.usedBySessions / (1024 * 1024));
+          var freeMB = Math.round(info.freeDevice / (1024 * 1024));
+          html += '<span class="storage-text">Sessions: ' + usedMB + ' MB · Free: ' + freeMB + ' MB</span>';
+        } catch (e) {}
+      }
+      bar.innerHTML = html;
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll(".tab").forEach(function(t) {
+        t.classList.toggle("active", t.getAttribute("data-tab") === tab);
+      });
+      document.getElementById("panel-my").classList.toggle("active", tab === "my");
+      document.getElementById("panel-browse").classList.toggle("active", tab === "browse");
+    }
+
+    function renderAll() {
+      renderMySessionsTab();
+      renderBrowseTab();
+      updateCounts();
+    }
+
+    function getDownloaded(s) {
+      if (!isAPK) return true;
+      if (s.downloaded === true) return true;
+      return Android.isSessionDownloaded(s.id);
+    }
+
+    // ── MY SESSIONS TAB ──
+
+    function renderMySessionsTab() {
+      var myKreis = document.getElementById("my-kreis-cards");
+      var myDom = document.getElementById("my-dom-cards");
+      myKreis.innerHTML = "";
+      myDom.innerHTML = "";
+      var kc = 0, dc = 0;
+
+      sessions.forEach(function(s) {
+        if (!getDownloaded(s)) return;
+        var isDom = s.programme === "dom";
+        var card = makeMyCard(s, isDom);
+        if (isDom) { myDom.appendChild(card); dc++; }
+        else { myKreis.appendChild(card); kc++; }
+      });
+
+      document.getElementById("my-kreis-section").style.display = kc > 0 ? "" : "none";
+      document.getElementById("my-dom-section").style.display = dc > 0 ? "" : "none";
+      document.getElementById("my-empty").style.display = (kc + dc === 0) ? "" : "none";
+    }
+
+    function makeMyCard(s, isDom) {
+      var cls = isDom ? " dom" : "";
+      var card = document.createElement("div");
+      card.className = "card" + (isDom ? " card-dom" : "");
+
+      var actions = '<a class="btn-play' + cls + '" href="player.html?id=' + s.id + '&lang=kn">Play ▶</a>';
+      if (s.hasUpdate) {
+        actions += '<span class="update-badge">Update available</span>';
+        if (s.downloadUrl) {
+          actions += '<button class="btn-update" onclick="startDownload(\'' + s.id + '\',\'' + s.downloadUrl + '\')">Update</button>';
+        }
+      }
+      if (isAPK) {
+        actions += '<button class="btn-delete" onclick="deleteSession(\'' + s.id + '\')">Delete</button>';
+      }
+
+      card.innerHTML =
+        '<div class="card-top">' +
+        '  <span class="card-num">Session ' + s.num + '</span>' +
+        '  <span class="card-dur">⏱ ' + (s.durationMin || 60) + ' min</span>' +
+        '</div>' +
+        '<h3>' + esc(s.title || s.id) + '</h3>' +
+        '<p>' + esc(s.subtitle || "") + '</p>' +
+        '<div class="card-actions" id="my-actions-' + s.id + '">' + actions + '</div>';
+      return card;
+    }
+
+    // ── BROWSE TAB ──
+
+    function renderBrowseTab() {
+      var bKreis = document.getElementById("browse-kreis-cards");
+      var bDom = document.getElementById("browse-dom-cards");
+      bKreis.innerHTML = "";
+      bDom.innerHTML = "";
+
+      var online = isAPK ? Android.isOnline() : true;
+      var allSessions = sessions;
+      var kc = 0, dc = 0;
+
+      if (!isAPK) {
+        // Non-APK: show all as playable
+        allSessions.forEach(function(s) {
+          var isDom = s.programme === "dom";
+          var card = makeBrowseCard(s, isDom, true);
+          if (isDom) { bDom.appendChild(card); dc++; }
+          else { bKreis.appendChild(card); kc++; }
+        });
+      } else if (!online && allSessions.length === 0) {
+        document.getElementById("browse-offline").style.display = "";
+        document.getElementById("browse-empty").style.display = "none";
+        document.getElementById("browse-kreis-section").style.display = "none";
+        document.getElementById("browse-dom-section").style.display = "none";
+        return;
+      } else {
+        allSessions.forEach(function(s) {
+          var isDom = s.programme === "dom";
+          var downloaded = getDownloaded(s);
+          var card = makeBrowseCard(s, isDom, downloaded);
+          if (isDom) { bDom.appendChild(card); dc++; }
+          else { bKreis.appendChild(card); kc++; }
+        });
+      }
+
+      document.getElementById("browse-offline").style.display = "none";
+      document.getElementById("browse-empty").style.display = (kc + dc === 0) ? "" : "none";
+      document.getElementById("browse-kreis-section").style.display = kc > 0 ? "" : "none";
+      document.getElementById("browse-dom-section").style.display = dc > 0 ? "" : "none";
+    }
+
+    function makeBrowseCard(s, isDom, downloaded) {
+      var cls = isDom ? " dom" : "";
+      var card = document.createElement("div");
+      card.className = "card" + (isDom ? " card-dom" : "");
+      card.id = "browse-card-" + s.id;
+
+      var actions = "";
+      if (downloaded) {
+        actions += '<span class="downloaded-badge">✓ Downloaded</span>';
+        if (s.hasUpdate && s.downloadUrl) {
+          actions += '<button class="btn-update" onclick="startDownload(\'' + s.id + '\',\'' + s.downloadUrl + '\')">Update</button>';
+        }
+        if (isAPK) {
+          actions += '<button class="btn-delete" onclick="deleteSession(\'' + s.id + '\')">Delete</button>';
+        }
+      } else if (isAPK && s.downloadUrl) {
+        var sizeMB = s.sizeBytes ? Math.round(s.sizeBytes / (1024 * 1024)) : 0;
+        var sizeLabel = sizeMB > 0 ? ' <span class="size-label">(' + sizeMB + ' MB)</span>' : '';
+        actions += '<button class="btn-download' + cls + '" id="dl-' + s.id + '" onclick="startDownload(\'' + s.id + '\',\'' + s.downloadUrl + '\')">Download' + sizeLabel + '</button>';
+      } else if (!isAPK) {
+        actions += '<a class="btn-play' + cls + '" href="player.html?id=' + s.id + '&lang=kn">Play ▶</a>';
+      } else {
+        actions += '<span class="size-label">Not available</span>';
+      }
+
+      card.innerHTML =
+        '<div class="card-top">' +
+        '  <span class="card-num">Session ' + s.num + '</span>' +
+        '  <span class="card-dur">⏱ ' + (s.durationMin || 60) + ' min</span>' +
+        '</div>' +
+        '<h3>' + esc(s.title || s.id) + '</h3>' +
+        '<p>' + esc(s.subtitle || "") + '</p>' +
+        '<div class="card-actions" id="browse-actions-' + s.id + '">' + actions + '</div>';
+      return card;
+    }
+
+    function updateCounts() {
+      var myCount = 0, browseCount = 0;
+      sessions.forEach(function(s) {
+        if (getDownloaded(s)) myCount++;
+        browseCount++;
+      });
+      document.getElementById("myCount").textContent = myCount;
+      document.getElementById("browseCount").textContent = browseCount;
+    }
+
+    // ── ACTIONS ──
+
+    function startDownload(id, url) {
+      // Update both tabs' action areas
+      ["my-actions-", "browse-actions-"].forEach(function(prefix) {
+        var el = document.getElementById(prefix + id);
+        if (el) {
+          el.innerHTML =
+            '<div class="progress-bar"><div class="progress-fill" id="prog-' + id + '" style="width:0%"></div></div>' +
+            '<span class="progress-text" id="progtxt-' + id + '">Starting…</span>';
+        }
+      });
+
+      Android.downloadSession(id, url);
+
+      if (pollTimers[id]) clearInterval(pollTimers[id]);
+      pollTimers[id] = setInterval(function() {
+        var pct = Android.getDownloadProgress(id);
+        document.querySelectorAll('[id^="prog-' + id + '"]').forEach(function(el) {
+          if (pct >= 0) el.style.width = pct + "%";
+        });
+        document.querySelectorAll('[id^="progtxt-' + id + '"]').forEach(function(el) {
+          if (pct >= 0) el.textContent = pct + "%";
+        });
+        if (pct >= 100 || pct < 0) {
+          clearInterval(pollTimers[id]);
+          delete pollTimers[id];
+        }
+      }, 500);
+    }
+
+    window.onDownloadComplete = function(id, success) {
+      if (pollTimers[id]) { clearInterval(pollTimers[id]); delete pollTimers[id]; }
+      loadSessions();
+    };
+
+    function deleteSession(id) {
+      if (!confirm("Delete this session? You can re-download it later.")) return;
+      Android.deleteSession(id);
+      loadSessions();
+    }
+
+    function refreshSessions() {
+      loadSessions();
+      checkAppUpdate();
+    }
+
+    // ── APP UPDATE ──
+
+    var appUpdateUrl = "";
+
+    function checkAppUpdate() {
+      if (!isAPK) return;
+      try {
+        var result = JSON.parse(Android.checkAppUpdate());
+        if (result.hasUpdate) {
+          appUpdateUrl = result.downloadUrl;
+          var banner = document.getElementById("appUpdateBanner");
+          document.getElementById("updateMsg").textContent = "App update available (v" + result.remoteVersion + ")";
+          document.getElementById("updateDetail").textContent = result.changelog || "Tap Update App to install the latest version.";
+          banner.classList.add("visible");
+        }
+      } catch (e) {}
+    }
+
+    function installAppUpdate() {
+      if (!appUpdateUrl) return;
+      var btn = document.getElementById("btnAppUpdate");
+      btn.textContent = "Downloading…";
+      btn.disabled = true;
+      Android.downloadAndInstallUpdate(appUpdateUrl);
+    }
+
+    window.onAppUpdateError = function(msg) {
+      var btn = document.getElementById("btnAppUpdate");
+      btn.textContent = "Update App";
+      btn.disabled = false;
+      alert("Update failed: " + msg);
+    };
+
+    function doLogout() {
+      if (isAPK) {
+        Android.logout();
+        window.location.href = "login.html";
+      }
+    }
+
+    function esc(str) {
+      var d = document.createElement("div");
+      d.appendChild(document.createTextNode(str));
+      return d.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+.gradle/
+build/
+app/build/
+local.properties
+*.apk
+*.iml
+.idea/
+CMCAPlayer-debug.apk
+app-version.json

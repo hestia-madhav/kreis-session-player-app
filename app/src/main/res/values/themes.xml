@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.CMCAPlayer" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#F39C1F</item>
+        <item name="colorPrimaryDark">#D48A1A</item>
+        <item name="colorAccent">#F39C1F</item>
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:statusBarColor">#D48A1A</item>
+    </style>
+</resources>
