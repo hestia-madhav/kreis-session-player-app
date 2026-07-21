@@ -425,6 +425,7 @@
       applyLang();
       loadSessions();
       checkAppUpdate();
+      setTimeout(resumeActiveDownloads, 300);
     }
 
     function renderHeader() {
@@ -651,7 +652,9 @@
         }
       });
 
-      Android.downloadSession(id, url);
+      var sizeBytes = 0;
+      allSessions.forEach(function(s) { if (s.id === id) sizeBytes = s.sizeBytes || 0; });
+      Android.downloadSession(id, url, sizeBytes);
 
       if (pollTimers[id]) clearInterval(pollTimers[id]);
       pollTimers[id] = setInterval(function() {
@@ -678,6 +681,32 @@
       if (!confirm(t("deleteConfirm"))) return;
       Android.deleteSession(id);
       loadSessions();
+    }
+
+    function resumeActiveDownloads() {
+      try {
+        var pending = JSON.parse(Android.getPendingDownloads());
+        if (pending.length > 0) { loadSessions(); return; }
+      } catch(e) {}
+      allSessions.forEach(function(s) {
+        var pct = Android.getDownloadProgress(s.id);
+        if (pct >= 0 && !pollTimers[s.id]) {
+          ["my-actions-", "browse-actions-"].forEach(function(prefix) {
+            var el = document.getElementById(prefix + s.id);
+            if (el) {
+              el.innerHTML =
+                '<div class="progress-bar"><div class="progress-fill" id="prog-' + s.id + '" style="width:' + pct + '%"></div></div>' +
+                '<span class="progress-text" id="progtxt-' + s.id + '">' + pct + '%</span>';
+            }
+          });
+          pollTimers[s.id] = setInterval(function() {
+            var p = Android.getDownloadProgress(s.id);
+            document.querySelectorAll('[id^="prog-' + s.id + '"]').forEach(function(el) { if (p >= 0) el.style.width = p + "%"; });
+            document.querySelectorAll('[id^="progtxt-' + s.id + '"]').forEach(function(el) { if (p >= 0) el.textContent = p + "%"; });
+            if (p >= 100 || p < 0) { clearInterval(pollTimers[s.id]); delete pollTimers[s.id]; loadSessions(); }
+          }, 500);
+        }
+      });
     }
 
     function refreshSessions() {

@@ -21,6 +21,7 @@ class PlayerBridge(
     private val onNavigate: (String) -> Unit
 ) {
     private val prefs = context.getSharedPreferences("cmca_player", Context.MODE_PRIVATE)
+    private val pendingCompletions = mutableListOf<Pair<String, Boolean>>()
 
     @JavascriptInterface
     fun login(userId: String, password: String): Boolean {
@@ -54,16 +55,28 @@ class PlayerBridge(
     fun getSessionManifest(): String = sessionManager.getManifestJson()
 
     @JavascriptInterface
-    fun downloadSession(id: String, url: String) {
+    fun downloadSession(id: String, url: String, sizeBytes: Long) {
         Thread {
-            val success = sessionManager.downloadSession(id, url)
-            val js = if (success) {
-                "window.onDownloadComplete && window.onDownloadComplete('$id', true)"
-            } else {
-                "window.onDownloadComplete && window.onDownloadComplete('$id', false)"
+            val success = sessionManager.downloadSession(id, url, sizeBytes)
+            val js = "window.onDownloadComplete && window.onDownloadComplete('$id', $success)"
+            try {
+                onNavigate("javascript:$js")
+            } catch (_: Exception) {
+                synchronized(pendingCompletions) { pendingCompletions.add(Pair(id, success)) }
             }
-            onNavigate("javascript:$js")
         }.start()
+    }
+
+    @JavascriptInterface
+    fun getPendingDownloads(): String {
+        synchronized(pendingCompletions) {
+            val arr = org.json.JSONArray()
+            pendingCompletions.forEach { (id, ok) ->
+                arr.put(JSONObject().put("id", id).put("success", ok))
+            }
+            pendingCompletions.clear()
+            return arr.toString()
+        }
     }
 
     @JavascriptInterface

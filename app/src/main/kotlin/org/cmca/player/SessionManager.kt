@@ -82,11 +82,12 @@ class SessionManager(private val context: Context) {
         return result.toString()
     }
 
-    fun downloadSession(id: String, url: String): Boolean {
+    fun downloadSession(id: String, url: String, expectedBytes: Long = 0): Boolean {
         return try {
             downloadProgress[id] = 0
             val conn = followRedirects(url)
-            val totalBytes = conn.contentLength.toLong()
+            val contentLen = conn.contentLength.toLong()
+            val totalBytes = if (contentLen > 0) contentLen else if (expectedBytes > 0) expectedBytes else -1L
 
             val tempFile = File(sessionsDir, "$id.zip.tmp")
             val input = BufferedInputStream(conn.inputStream)
@@ -100,7 +101,7 @@ class SessionManager(private val context: Context) {
                 output.write(buffer, 0, n)
                 bytesRead += n
                 if (totalBytes > 0) {
-                    downloadProgress[id] = ((bytesRead * 100) / totalBytes).toInt()
+                    downloadProgress[id] = ((bytesRead * 100) / totalBytes).toInt().coerceIn(0, 99)
                 }
             }
 
