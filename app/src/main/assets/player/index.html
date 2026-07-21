@@ -31,6 +31,21 @@
     .btn-refresh { border-color: #F39C1F; color: #F39C1F; }
     .btn-logout { border-color: #EF4444; color: #EF4444; }
 
+    /* Language toggle */
+    .lang-toggle {
+      display: inline-flex; align-items: center; gap: 0; padding: 0;
+      border: none; background: transparent; cursor: pointer;
+      font-family: inherit; font-size: 0.82rem; font-weight: 600;
+      border-radius: 8px; overflow: hidden;
+    }
+    .lang-toggle span {
+      padding: 0.32rem 0.6rem; transition: background 0.15s, color 0.15s;
+    }
+    .lang-toggle .lang-en { border-radius: 8px 0 0 8px; }
+    .lang-toggle .lang-kn { border-radius: 0 8px 8px 0; }
+    .lang-toggle .lang-active { background: #F39C1F; color: #fff; }
+    .lang-toggle .lang-inactive { background: #E5E7EB; color: #6B7280; }
+
     /* Tabs */
     .tab-bar {
       display: flex; gap: 0; margin-bottom: 1.25rem;
@@ -175,10 +190,10 @@
     <!-- Tab bar -->
     <div class="tab-bar">
       <button class="tab active" data-tab="my" onclick="switchTab('my')">
-        My Sessions<span class="tab-count" id="myCount">0</span>
+        <span data-t="myTab">My Sessions</span><span class="tab-count" id="myCount">0</span>
       </button>
       <button class="tab" data-tab="browse" onclick="switchTab('browse')">
-        Browse<span class="tab-count" id="browseCount">0</span>
+        <span data-t="browseTab">Browse</span><span class="tab-count" id="browseCount">0</span>
       </button>
     </div>
 
@@ -190,21 +205,21 @@
       <div id="my-kreis-section" class="programme" style="display:none">
         <div class="programme-header">
           <span class="programme-name">KREIS</span>
-          <span class="programme-pill pill-kreis">Children's Constitution Club</span>
+          <span class="programme-pill pill-kreis" data-t="kreisLabel">Children's Constitution Club</span>
         </div>
         <div class="cards" id="my-kreis-cards"></div>
       </div>
       <div id="my-dom-section" class="programme" style="display:none">
         <div class="programme-header">
           <span class="programme-name">DOM</span>
-          <span class="programme-pill pill-dom">Children's Civic Club</span>
+          <span class="programme-pill pill-dom" data-t="domLabel">Children's Civic Club</span>
         </div>
         <div class="cards" id="my-dom-cards"></div>
       </div>
       <div id="my-empty" class="empty-state">
-        <h3>No sessions downloaded yet</h3>
-        <p>Go to Browse to find and download sessions for offline playback.</p>
-        <button class="btn-browse" onclick="switchTab('browse')">Browse Sessions</button>
+        <h3 data-t="emptyTitle">No sessions downloaded yet</h3>
+        <p data-t="emptyDesc">Go to Browse to find and download sessions for offline playback.</p>
+        <button class="btn-browse" onclick="switchTab('browse')" data-t="browseSessions">Browse Sessions</button>
       </div>
     </div>
 
@@ -213,31 +228,180 @@
       <div id="browse-kreis-section" class="programme" style="display:none">
         <div class="programme-header">
           <span class="programme-name">KREIS</span>
-          <span class="programme-pill pill-kreis">Children's Constitution Club</span>
+          <span class="programme-pill pill-kreis" data-t="kreisLabel">Children's Constitution Club</span>
         </div>
         <div class="cards" id="browse-kreis-cards"></div>
       </div>
       <div id="browse-dom-section" class="programme" style="display:none">
         <div class="programme-header">
           <span class="programme-name">DOM</span>
-          <span class="programme-pill pill-dom">Children's Civic Club</span>
+          <span class="programme-pill pill-dom" data-t="domLabel">Children's Civic Club</span>
         </div>
         <div class="cards" id="browse-dom-cards"></div>
       </div>
       <div id="browse-offline" class="empty-state" style="display:none">
-        <h3>You're offline</h3>
-        <p>Connect to WiFi to browse and download available sessions.</p>
+        <h3 data-t="offlineTitle">You're offline</h3>
+        <p data-t="offlineDesc">Connect to WiFi to browse and download available sessions.</p>
       </div>
       <div id="browse-empty" class="empty-state" style="display:none">
-        <h3>No sessions available</h3>
-        <p>Check back later or contact your administrator.</p>
+        <h3 data-t="noSessionsTitle">No sessions available</h3>
+        <p data-t="noSessionsDesc">Check back later or contact your administrator.</p>
       </div>
     </div>
 
-    <footer>CMCA Sessions · CMCA India</footer>
+    <footer data-t="footer">CMCA Sessions · CMCA India</footer>
   </div>
 
   <script>
+    // ── LANGUAGE ──
+
+    var STRINGS = {
+      en: {
+        myTab: "My Sessions",
+        browseTab: "Browse",
+        kreisLabel: "Children's Constitution Club",
+        domLabel: "Children's Civic Club",
+        emptyTitle: "No sessions downloaded yet",
+        emptyDesc: "Go to Browse to find and download sessions for offline playback.",
+        browseSessions: "Browse Sessions",
+        offlineTitle: "You're offline",
+        offlineDesc: "Connect to WiFi to browse and download available sessions.",
+        noSessionsTitle: "No sessions available",
+        noSessionsDesc: "Check back later or contact your administrator.",
+        footer: "CMCA Sessions · CMCA India",
+        session: "Session",
+        min: "min",
+        play: "Play ▶",
+        download: "Download",
+        delete: "Delete",
+        update: "Update",
+        updateAvailable: "Update available",
+        downloaded: "✓ Downloaded",
+        notAvailable: "Not available",
+        online: "Online",
+        offline: "Offline",
+        sessionsFree: "Sessions",
+        free: "Free",
+        refresh: "Refresh",
+        logout: "Logout",
+        deleteConfirm: "Delete this session? You can re-download it later.",
+        starting: "Starting…"
+      },
+      kn: {
+        myTab: "ನನ್ನ ಅವಧಿಗಳು",
+        browseTab: "ಹುಡುಕಿ",
+        kreisLabel: "ಮಕ್ಕಳ ಸಂವಿಧಾನ ಕ್ಲಬ್",
+        domLabel: "ಪೌರಕರ್ಮಿಕ ಕ್ಲಬ್",
+        emptyTitle: "ಯಾವ ಅವಧಿಗಳೂ ಡೌನ್‌ಲೋಡ್ ಆಗಿಲ್ಲ",
+        emptyDesc: "ಆಫ್‌ಲೈನ್ ಪ್ಲೇಬ್ಯಾಕ್‌ಗಾಗಿ ಅವಧಿಗಳನ್ನು ಹುಡುಕಲು ಬ್ರೌಸ್ ಒತ್ತಿ.",
+        browseSessions: "ಅವಧಿಗಳನ್ನು ಹುಡುಕಿ",
+        offlineTitle: "ನೀವು ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿದ್ದೀರಿ",
+        offlineDesc: "ಅವಧಿಗಳನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಲು WiFi ಗೆ ಸಂಪರ್ಕಿಸಿ.",
+        noSessionsTitle: "ಅವಧಿಗಳು ಲಭ್ಯವಿಲ್ಲ",
+        noSessionsDesc: "ನಂತರ ಪರಿಶೀಲಿಸಿ ಅಥವಾ ನಿಮ್ಮ ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+        footer: "CMCA ಅವಧಿಗಳು · CMCA India",
+        session: "ಅವಧಿ",
+        min: "ನಿಮಿಷ",
+        play: "ಪ್ಲೇ ▶",
+        download: "ಡೌನ್‌ಲೋಡ್",
+        delete: "ಅಳಿಸಿ",
+        update: "ನವೀಕರಿಸಿ",
+        updateAvailable: "ನವೀಕರಣ ಲಭ್ಯ",
+        downloaded: "✓ ಡೌನ್‌ಲೋಡ್",
+        notAvailable: "ಲಭ್ಯವಿಲ್ಲ",
+        online: "ಆನ್‌ಲೈನ್",
+        offline: "ಆಫ್‌ಲೈನ್",
+        sessionsFree: "ಅವಧಿಗಳು",
+        free: "ಉಚಿತ",
+        refresh: "ರಿಫ್ರೆಶ್",
+        logout: "ಲಾಗ್‌ಔಟ್",
+        deleteConfirm: "ಈ ಅವಧಿ ಅಳಿಸಬೇಕೇ? ನಂತರ ಮತ್ತೆ ಡೌನ್‌ಲೋಡ್ ಮಾಡಬಹುದು.",
+        starting: "ಪ್ರಾರಂಭಿಸಲಾಗುತ್ತಿದೆ…"
+      }
+    };
+
+    var SESSION_I18N = {
+      "kreis-session-1": {
+        title: { en: "Welcome to the Children's Constitution Club", kn: "ಮಕ್ಕಳ ಸಂವಿಧಾನ ಕ್ಲಬ್‌ಗೆ ಸುಸ್ವಾಗತ!" },
+        subtitle: { en: "Introductions · Calmers · Group formation · Constitution connect · Club rules", kn: "ಪರಿಚಯ · ಶಾಂತಗೊಳಿಸುವಿಕೆ · ಗುಂಪು ರಚನೆ · ಸಂವಿಧಾನ ಸಂಪರ್ಕ · ಕ್ಲಬ್ ನಿಯಮಗಳು" }
+      },
+      "kreis-session-2": {
+        title: { en: "Naming of Club & Launch Campaign", kn: "ಕ್ಲಬ್‌ಗೆ ಹೆಸರಿಡುವುದು ಮತ್ತು ಉದ್ಘಾಟನಾ ಅಭಿಯಾನ" },
+        subtitle: { en: "Pick a club name · Form the core committee · Elect a president · Plan the school-assembly launch", kn: "ಕ್ಲಬ್ ಹೆಸರು ಆಯ್ಕೆ · ಕೋರ್ ಸಮಿತಿ ರಚನೆ · ಅಧ್ಯಕ್ಷರ ಚುನಾವಣೆ · ಶಾಲಾ ಸಭೆ ಉದ್ಘಾಟನೆ ಯೋಜನೆ" }
+      },
+      "kreis-session-3": {
+        title: { en: "Choices, Integrity & the Change Champion Box", kn: "ಆಯ್ಕೆಗಳು, ಪ್ರಾಮಾಣಿಕತೆ ಮತ್ತು ಚೇಂಜ್ ಚಾಂಪಿಯನ್ ಬಾಕ್ಸ್" },
+        subtitle: { en: "Hospital stories · Group values exercise · Reflect on choices · Introduce integrity · Build the Change Champion Box", kn: "ಆಸ್ಪತ್ರೆ ಕಥೆಗಳು · ಗುಂಪು ಮೌಲ್ಯ ಅಭ್ಯಾಸ · ಆಯ್ಕೆಗಳ ಬಗ್ಗೆ ಚಿಂತನೆ · ಪ್ರಾಮಾಣಿಕತೆ ಪರಿಚಯ · ಚೇಂಜ್ ಚಾಂಪಿಯನ್ ಬಾಕ್ಸ್ ನಿರ್ಮಾಣ" }
+      },
+      "kreis-session-4": {
+        title: { en: "Child Rights, Responsibilities & Makkala Grama Sabha", kn: "ಮಕ್ಕಳ ಹಕ್ಕುಗಳು, ಜವಾಬ್ದಾರಿಗಳು ಮತ್ತು ಮಕ್ಕಳ ಗ್ರಾಮ ಸಭೆ" },
+        subtitle: { en: "Change Champion Box · Ajay's story · Child rights · ChildLine 1098 · Reflection · MGS introduction", kn: "ಚೇಂಜ್ ಚಾಂಪಿಯನ್ ಬಾಕ್ಸ್ · ಅಜಯ್ ಕಥೆ · ಮಕ್ಕಳ ಹಕ್ಕುಗಳು (4 ವಿಭಾಗ) · ChildLine 1098 · ಚಿಂತನೆ · MGS ಪರಿಚಯ" }
+      },
+      "kreis-session-5": {
+        title: { en: "Active Citizens & Helpline Numbers", kn: "ಸಕ್ರಿಯ ನಾಗರಿಕರು ಮತ್ತು ಸಹಾಯವಾಣಿ ಸಂಖ್ಯೆಗಳು" },
+        subtitle: { en: "ROC stories · 3-tier government · Visualization exercise · Local government · Helpline quiz", kn: "ROC ಕಥೆಗಳು · 3-ಹಂತದ ಸರ್ಕಾರ · ಕಲ್ಪನೆ ಅಭ್ಯಾಸ · ಸ್ಥಳೀಯ ಸರ್ಕಾರ · ಸಹಾಯವಾಣಿ ರಸಪ್ರಶ್ನೆ" }
+      },
+      "kreis-session-6": {
+        title: { en: "Fake News, Scientific Temper & the 4Ws Test", kn: "ಸುಳ್ಳು ಸುದ್ದಿ, ವೈಜ್ಞಾನಿಕ ಮನೋಭಾವ ಮತ್ತು 4Ws ಪರೀಕ್ಷೆ" },
+        subtitle: { en: "Roleplay · Scientific temper · 4Ws framework · UPI ban fact-check · AI fake news", kn: "ಪಾತ್ರಾಭಿನಯ · ವೈಜ್ಞಾನಿಕ ಮನೋಭಾವ · 4Ws ಚೌಕಟ್ಟು · UPI ನಿಷೇಧ ಸತ್ಯಶೋಧನೆ · AI ಸುಳ್ಳು ಸುದ್ದಿ" }
+      },
+      "dom-session-1": {
+        title: { en: "Welcome to the Children's Civic Club", kn: "ಪೌರಕರ್ಮಿಕ ಕ್ಲಬ್‌ಗೆ ಸುಸ್ವಾಗತ!" },
+        subtitle: { en: "Introductions · Calmers · Group formation · Civic connect · Club rules", kn: "ಪರಿಚಯ · ಶಾಂತಗೊಳಿಸುವಿಕೆ · ಗುಂಪು ರಚನೆ · ಪೌರ ಸಂಪರ್ಕ · ಕ್ಲಬ್ ನಿಯಮಗಳು" }
+      },
+      "dom-session-2": {
+        title: { en: "Naming of Club & Launch Campaign", kn: "ಕ್ಲಬ್‌ಗೆ ಹೆಸರಿಡುವುದು ಮತ್ತು ಉದ್ಘಾಟನಾ ಅಭಿಯಾನ" },
+        subtitle: { en: "Pick a club name · Form the core committee · Elect a president · Plan the school-assembly launch", kn: "ಕ್ಲಬ್ ಹೆಸರು ಆಯ್ಕೆ · ಕೋರ್ ಸಮಿತಿ ರಚನೆ · ಅಧ್ಯಕ್ಷರ ಚುನಾವಣೆ · ಶಾಲಾ ಸಭೆ ಉದ್ಘಾಟನೆ ಯೋಜನೆ" }
+      },
+      "dom-session-3": {
+        title: { en: "Choices, Integrity & the Change Champion Box", kn: "ಆಯ್ಕೆಗಳು, ಪ್ರಾಮಾಣಿಕತೆ ಮತ್ತು ಚೇಂಜ್ ಚಾಂಪಿಯನ್ ಬಾಕ್ಸ್" },
+        subtitle: { en: "Hospital stories · Group values exercise · Reflect on choices · Introduce integrity · Build the Change Champion Box", kn: "ಆಸ್ಪತ್ರೆ ಕಥೆಗಳು · ಗುಂಪು ಮೌಲ್ಯ ಅಭ್ಯಾಸ · ಆಯ್ಕೆಗಳ ಬಗ್ಗೆ ಚಿಂತನೆ · ಪ್ರಾಮಾಣಿಕತೆ ಪರಿಚಯ · ಚೇಂಜ್ ಚಾಂಪಿಯನ್ ಬಾಕ್ಸ್ ನಿರ್ಮಾಣ" }
+      }
+    };
+
+    var currentLang = "en";
+
+    function initLang() {
+      try { currentLang = localStorage.getItem("kreis-demo-lang") || "en"; } catch (e) {}
+      if (currentLang !== "kn") currentLang = "en";
+    }
+
+    function toggleLang() {
+      currentLang = currentLang === "en" ? "kn" : "en";
+      try { localStorage.setItem("kreis-demo-lang", currentLang); } catch (e) {}
+      applyLang();
+      renderAll();
+    }
+
+    function t(key) { return STRINGS[currentLang][key] || STRINGS.en[key] || key; }
+
+    function sessionTitle(s) {
+      var i18n = SESSION_I18N[s.id];
+      if (i18n) return i18n.title[currentLang] || i18n.title.en || s.title || s.id;
+      return s.title || s.id;
+    }
+
+    function sessionSubtitle(s) {
+      var i18n = SESSION_I18N[s.id];
+      if (i18n) return i18n.subtitle[currentLang] || i18n.subtitle.en || s.subtitle || "";
+      return s.subtitle || "";
+    }
+
+    function applyLang() {
+      document.querySelectorAll("[data-t]").forEach(function(el) {
+        var key = el.getAttribute("data-t");
+        if (STRINGS[currentLang][key]) el.textContent = STRINGS[currentLang][key];
+      });
+      document.querySelectorAll(".lang-en").forEach(function(el) {
+        el.className = "lang-en " + (currentLang === "en" ? "lang-active" : "lang-inactive");
+      });
+      document.querySelectorAll(".lang-kn").forEach(function(el) {
+        el.className = "lang-kn " + (currentLang === "kn" ? "lang-active" : "lang-inactive");
+      });
+    }
+
+    // ── CORE ──
+
     var FALLBACK_SESSIONS = [
       { id: "kreis-session-1", num: 1, programme: "kreis", title: "Welcome to the Children's Constitution Club", subtitle: "Introductions · Calmers · Group formation · Constitution connect · Club rules", durationMin: 60, downloaded: true },
       { id: "kreis-session-2", num: 2, programme: "kreis", title: "Naming of Club & Launch Campaign", subtitle: "Pick a club name · Form the core committee · Elect a president · Plan the school-assembly launch", durationMin: 60, downloaded: true },
@@ -256,19 +420,30 @@
     var pollTimers = {};
 
     function init() {
+      initLang();
       renderHeader();
+      applyLang();
       loadSessions();
       checkAppUpdate();
     }
 
     function renderHeader() {
       var el = document.getElementById("headerRight");
+      var langHtml =
+        '<button class="lang-toggle" onclick="toggleLang()" aria-label="Switch language">' +
+        '  <span class="lang-en ' + (currentLang === "en" ? "lang-active" : "lang-inactive") + '">EN</span>' +
+        '  <span class="lang-kn ' + (currentLang === "kn" ? "lang-active" : "lang-inactive") + '">ಕನ್ನಡ</span>' +
+        '</button>';
+
       if (isAPK) {
         var user = Android.getLoggedInUser();
         el.innerHTML =
           '<span class="user-badge">' + esc(user) + '</span>' +
-          '<button class="btn-sm btn-refresh" onclick="refreshSessions()">Refresh</button>' +
-          '<button class="btn-sm btn-logout" onclick="doLogout()">Logout</button>';
+          langHtml +
+          '<button class="btn-sm btn-refresh" onclick="refreshSessions()" data-t="refresh">' + t("refresh") + '</button>' +
+          '<button class="btn-sm btn-logout" onclick="doLogout()" data-t="logout">' + t("logout") + '</button>';
+      } else {
+        el.innerHTML = langHtml;
       }
     }
 
@@ -293,13 +468,13 @@
       var bar = document.getElementById("statusBar");
       var online = isAPK ? Android.isOnline() : false;
       var html = '<span class="badge ' + (online ? "badge-online" : "badge-offline") + '">' +
-        (online ? "Online" : "Offline") + '</span>';
+        (online ? t("online") : t("offline")) + '</span>';
       if (isAPK) {
         try {
           var info = JSON.parse(Android.getStorageInfo());
           var usedMB = Math.round(info.usedBySessions / (1024 * 1024));
           var freeMB = Math.round(info.freeDevice / (1024 * 1024));
-          html += '<span class="storage-text">Sessions: ' + usedMB + ' MB · Free: ' + freeMB + ' MB</span>';
+          html += '<span class="storage-text">' + t("sessionsFree") + ': ' + usedMB + ' MB · ' + t("free") + ': ' + freeMB + ' MB</span>';
         } catch (e) {}
       }
       bar.innerHTML = html;
@@ -353,24 +528,25 @@
       var card = document.createElement("div");
       card.className = "card" + (isDom ? " card-dom" : "");
 
-      var actions = '<a class="btn-play' + cls + '" href="player.html?id=' + s.id + '&lang=kn">Play ▶</a>';
+      var playLang = currentLang === "kn" ? "kn" : "kn";
+      var actions = '<a class="btn-play' + cls + '" href="player.html?id=' + s.id + '&lang=' + playLang + '">' + t("play") + '</a>';
       if (s.hasUpdate) {
-        actions += '<span class="update-badge">Update available</span>';
+        actions += '<span class="update-badge">' + t("updateAvailable") + '</span>';
         if (s.downloadUrl) {
-          actions += '<button class="btn-update" onclick="startDownload(\'' + s.id + '\',\'' + s.downloadUrl + '\')">Update</button>';
+          actions += '<button class="btn-update" onclick="startDownload(\'' + s.id + '\',\'' + s.downloadUrl + '\')">' + t("update") + '</button>';
         }
       }
       if (isAPK) {
-        actions += '<button class="btn-delete" onclick="deleteSession(\'' + s.id + '\')">Delete</button>';
+        actions += '<button class="btn-delete" onclick="deleteSession(\'' + s.id + '\')">' + t("delete") + '</button>';
       }
 
       card.innerHTML =
         '<div class="card-top">' +
-        '  <span class="card-num">Session ' + s.num + '</span>' +
-        '  <span class="card-dur">⏱ ' + (s.durationMin || 60) + ' min</span>' +
+        '  <span class="card-num">' + t("session") + ' ' + (s.num || "") + '</span>' +
+        '  <span class="card-dur">⏱ ' + (s.durationMin || 60) + ' ' + t("min") + '</span>' +
         '</div>' +
-        '<h3>' + esc(s.title || s.id) + '</h3>' +
-        '<p>' + esc(s.subtitle || "") + '</p>' +
+        '<h3>' + esc(sessionTitle(s)) + '</h3>' +
+        '<p>' + esc(sessionSubtitle(s)) + '</p>' +
         '<div class="card-actions" id="my-actions-' + s.id + '">' + actions + '</div>';
       return card;
     }
@@ -388,7 +564,6 @@
       var kc = 0, dc = 0;
 
       if (!isAPK) {
-        // Non-APK: show all as playable
         allSessions.forEach(function(s) {
           var isDom = s.programme === "dom";
           var card = makeBrowseCard(s, isDom, true);
@@ -425,30 +600,31 @@
 
       var actions = "";
       if (downloaded) {
-        actions += '<span class="downloaded-badge">✓ Downloaded</span>';
+        actions += '<span class="downloaded-badge">' + t("downloaded") + '</span>';
         if (s.hasUpdate && s.downloadUrl) {
-          actions += '<button class="btn-update" onclick="startDownload(\'' + s.id + '\',\'' + s.downloadUrl + '\')">Update</button>';
+          actions += '<button class="btn-update" onclick="startDownload(\'' + s.id + '\',\'' + s.downloadUrl + '\')">' + t("update") + '</button>';
         }
         if (isAPK) {
-          actions += '<button class="btn-delete" onclick="deleteSession(\'' + s.id + '\')">Delete</button>';
+          actions += '<button class="btn-delete" onclick="deleteSession(\'' + s.id + '\')">' + t("delete") + '</button>';
         }
       } else if (isAPK && s.downloadUrl) {
         var sizeMB = s.sizeBytes ? Math.round(s.sizeBytes / (1024 * 1024)) : 0;
         var sizeLabel = sizeMB > 0 ? ' <span class="size-label">(' + sizeMB + ' MB)</span>' : '';
-        actions += '<button class="btn-download' + cls + '" id="dl-' + s.id + '" onclick="startDownload(\'' + s.id + '\',\'' + s.downloadUrl + '\')">Download' + sizeLabel + '</button>';
+        actions += '<button class="btn-download' + cls + '" id="dl-' + s.id + '" onclick="startDownload(\'' + s.id + '\',\'' + s.downloadUrl + '\')">' + t("download") + sizeLabel + '</button>';
       } else if (!isAPK) {
-        actions += '<a class="btn-play' + cls + '" href="player.html?id=' + s.id + '&lang=kn">Play ▶</a>';
+        var playLang = currentLang === "kn" ? "kn" : "kn";
+        actions += '<a class="btn-play' + cls + '" href="player.html?id=' + s.id + '&lang=' + playLang + '">' + t("play") + '</a>';
       } else {
-        actions += '<span class="size-label">Not available</span>';
+        actions += '<span class="size-label">' + t("notAvailable") + '</span>';
       }
 
       card.innerHTML =
         '<div class="card-top">' +
-        '  <span class="card-num">Session ' + s.num + '</span>' +
-        '  <span class="card-dur">⏱ ' + (s.durationMin || 60) + ' min</span>' +
+        '  <span class="card-num">' + t("session") + ' ' + (s.num || "") + '</span>' +
+        '  <span class="card-dur">⏱ ' + (s.durationMin || 60) + ' ' + t("min") + '</span>' +
         '</div>' +
-        '<h3>' + esc(s.title || s.id) + '</h3>' +
-        '<p>' + esc(s.subtitle || "") + '</p>' +
+        '<h3>' + esc(sessionTitle(s)) + '</h3>' +
+        '<p>' + esc(sessionSubtitle(s)) + '</p>' +
         '<div class="card-actions" id="browse-actions-' + s.id + '">' + actions + '</div>';
       return card;
     }
@@ -466,13 +642,12 @@
     // ── ACTIONS ──
 
     function startDownload(id, url) {
-      // Update both tabs' action areas
       ["my-actions-", "browse-actions-"].forEach(function(prefix) {
         var el = document.getElementById(prefix + id);
         if (el) {
           el.innerHTML =
             '<div class="progress-bar"><div class="progress-fill" id="prog-' + id + '" style="width:0%"></div></div>' +
-            '<span class="progress-text" id="progtxt-' + id + '">Starting…</span>';
+            '<span class="progress-text" id="progtxt-' + id + '">' + t("starting") + '</span>';
         }
       });
 
@@ -500,7 +675,7 @@
     };
 
     function deleteSession(id) {
-      if (!confirm("Delete this session? You can re-download it later.")) return;
+      if (!confirm(t("deleteConfirm"))) return;
       Android.deleteSession(id);
       loadSessions();
     }
