@@ -50,6 +50,11 @@ class SessionManager(private val context: Context) {
                     existing.put("hasUpdate", remoteVer > localVer)
                     existing.put("downloadUrl", rs.optString("downloadUrl", ""))
                     existing.put("sizeBytes", rs.optLong("sizeBytes", 0))
+                    existing.put("title", rs.optString("title", id))
+                    existing.put("subtitle", rs.optString("subtitle", ""))
+                    existing.put("programme", rs.optString("programme", "kreis"))
+                    existing.put("num", rs.optInt("num", 0))
+                    existing.put("durationMin", rs.optInt("durationMin", 60))
                 } else {
                     val newEntry = JSONObject()
                     newEntry.put("id", id)
@@ -200,6 +205,17 @@ class SessionManager(private val context: Context) {
     private fun updateLocalManifest(id: String) {
         val manifest = getLocalManifest()
         val arr = manifest.optJSONArray("sessions") ?: JSONArray()
+
+        val remote = getRemoteManifest()
+        var remoteEntry: JSONObject? = null
+        if (remote != null) {
+            val remoteArr = remote.optJSONArray("sessions") ?: JSONArray()
+            for (i in 0 until remoteArr.length()) {
+                val rs = remoteArr.getJSONObject(i)
+                if (rs.getString("id") == id) { remoteEntry = rs; break }
+            }
+        }
+
         var found = false
         for (i in 0 until arr.length()) {
             val s = arr.getJSONObject(i)
@@ -207,6 +223,13 @@ class SessionManager(private val context: Context) {
                 s.put("downloaded", true)
                 s.put("version", s.optInt("remoteVersion", s.optInt("version", 0) + 1))
                 s.put("hasUpdate", false)
+                if (remoteEntry != null) {
+                    s.put("title", remoteEntry.optString("title", id))
+                    s.put("subtitle", remoteEntry.optString("subtitle", ""))
+                    s.put("programme", remoteEntry.optString("programme", "kreis"))
+                    s.put("num", remoteEntry.optInt("num", 0))
+                    s.put("durationMin", remoteEntry.optInt("durationMin", 60))
+                }
                 found = true
                 break
             }
@@ -215,7 +238,12 @@ class SessionManager(private val context: Context) {
             val entry = JSONObject()
             entry.put("id", id)
             entry.put("downloaded", true)
-            entry.put("version", 1)
+            entry.put("version", remoteEntry?.optInt("version", 1) ?: 1)
+            entry.put("title", remoteEntry?.optString("title", id) ?: id)
+            entry.put("subtitle", remoteEntry?.optString("subtitle", "") ?: "")
+            entry.put("programme", remoteEntry?.optString("programme", "kreis") ?: "kreis")
+            entry.put("num", remoteEntry?.optInt("num", 0) ?: 0)
+            entry.put("durationMin", remoteEntry?.optInt("durationMin", 60) ?: 60)
             arr.put(entry)
         }
         manifest.put("sessions", arr)
